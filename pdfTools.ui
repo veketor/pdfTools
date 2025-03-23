@@ -145,11 +145,11 @@
      <property name="title">
       <string>Sección</string>
      </property>
-     <widget class="QLabel" name="label_3">
+     <widget class="QLabel" name="lblPagFin">
       <property name="geometry">
        <rect>
         <x>150</x>
-        <y>20</y>
+        <y>50</y>
         <width>49</width>
         <height>16</height>
        </rect>
@@ -168,7 +168,7 @@
        </rect>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="pbAdd">
       <property name="geometry">
        <rect>
         <x>40</x>
@@ -185,7 +185,7 @@
       <property name="geometry">
        <rect>
         <x>150</x>
-        <y>50</y>
+        <y>20</y>
         <width>191</width>
         <height>22</height>
        </rect>
@@ -321,7 +321,7 @@
        </property>
       </item>
      </widget>
-     <widget class="QLabel" name="label_5">
+     <widget class="QLabel" name="lbFecha">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -338,20 +338,20 @@
       <property name="geometry">
        <rect>
         <x>220</x>
-        <y>20</y>
+        <y>50</y>
         <width>42</width>
         <height>22</height>
        </rect>
       </property>
      </widget>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="lblPagIni">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>20</y>
+        <y>50</y>
         <width>71</width>
         <height>16</height>
        </rect>
@@ -360,11 +360,11 @@
        <string>Pag. Inicio</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_4">
+     <widget class="QLabel" name="lblTipoDoc">
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>50</y>
+        <y>23</y>
         <width>121</width>
         <height>16</height>
        </rect>
@@ -377,7 +377,7 @@
       <property name="geometry">
        <rect>
         <x>90</x>
-        <y>20</y>
+        <y>50</y>
         <width>42</width>
         <height>22</height>
        </rect>
@@ -655,11 +655,11 @@
  <tabstops>
   <tabstop>sbPaciente</tabstop>
   <tabstop>btnConfNum</tabstop>
+  <tabstop>cbTipoDoc</tabstop>
   <tabstop>sbPagIni</tabstop>
   <tabstop>sbPagFin</tabstop>
-  <tabstop>cbTipoDoc</tabstop>
   <tabstop>dateEdit</tabstop>
-  <tabstop>pushButton</tabstop>
+  <tabstop>pbAdd</tabstop>
   <tabstop>tableWidget</tabstop>
   <tabstop>btnProcess</tabstop>
   <tabstop>pbPrevPage</tabstop>
