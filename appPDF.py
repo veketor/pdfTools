@@ -99,7 +99,7 @@ class FileDropWindow(QMainWindow):
         self.follower_label.setStyleSheet("background-color: lightblue; border: 1px solid black")
         self.follower_label.setText("Following mouse...")
         self.follower_label.setHidden(True)
-        self.overZoom = False        
+
  
     def restartProccess(self):
         self.status = procesStatus.WAITINGFILE
@@ -110,7 +110,6 @@ class FileDropWindow(QMainWindow):
         self.fileLoaded = False
         self.imageIndex = 0
         self.imgArray = []
-        self.overZoom = False        
         
     def close(self):
         print("Salimos")
@@ -201,13 +200,12 @@ class FileDropWindow(QMainWindow):
     
     def handle_mouse_enter(self, event):
         print("Mouse entered lblImagePdf")
-        self.follower_label.setHidden(False)
-        self.overZoom = True
+        #self.follower_label.setHidden(False)
+
     
     def handle_mouse_leave(self, event):
         print("Mouse left lblImagePdf")
         self.follower_label.setHidden(True)
-        self.overZoom = False
         
     def update_follower_position(self):
         # Get global mouse position
@@ -220,16 +218,23 @@ class FileDropWindow(QMainWindow):
         # Ensure label stays within window bounds
         x = max(0, min(x, self.width() - self.follower_label.width()))
         y = max(0, min(y, self.height() - self.follower_label.height()))
-        print ("Muevo")
         self.follower_label.move(x, y)
     
     def mouseMoveEvent(self, event):             
-        # print ("Mouse")
-        if self.overZoom:
-            print(f"Posición del ratón: {event.x()}, {event.y()}")
-            # super().mouseMoveEvent(event)
-            # self.update_follower_position()
-        
+        if self.lblImagePdf.geometry().contains(event.x(), event.y()):
+            print(f"Posición del ratón sobre el label: {event.x()}, {event.y()}")
+            if len(self.imgArray) == 0:
+                return
+            scaleX = self.imgArray[self.imageIndex].width() / self.lblImagePdf.width()
+            scaleY = self.lblImagePdf.width() / self.imgArray[self.imageIndex].width()
+            sectorX = max(0,int(event.x()-self.lblImagePdf.pos().x()*scaleX))
+            sectorY = int(event.y()-self.lblImagePdf.pos().y()*scaleY)
+            self.follower_label.setHidden(False)
+            self.update_follower_position()
+            print (str(sectorX)+", "+str(sectorY))
+            recorte = self.imgArray[self.imageIndex].copy(sectorX, sectorY, 256, 128)
+            self.follower_label.setPixmap(recorte)
+            
 if __name__ == '__main__':
     # Create the application
     app = QApplication(sys.argv)
