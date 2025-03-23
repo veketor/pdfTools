@@ -219,19 +219,23 @@ class FileDropWindow(QMainWindow):
         x = max(0, min(x, self.width() - self.follower_label.width()))
         y = max(0, min(y, self.height() - self.follower_label.height()))
         self.follower_label.move(x, y)
-    
+  
+    def constrain(value, min_val=0.1, max_val=1.0):
+        return max(min_val, min(value, max_val))
+
+  
     def mouseMoveEvent(self, event):             
         if self.lblImagePdf.geometry().contains(event.x(), event.y()):
-            print(f"Posición del ratón sobre el label: {event.x()}, {event.y()}")
+            #print(f"Posición del ratón sobre el label: {event.x()}, {event.y()}")
             if len(self.imgArray) == 0:
                 return
-            scaleX = self.imgArray[self.imageIndex].width() / self.lblImagePdf.width()
-            scaleY = self.lblImagePdf.width() / self.imgArray[self.imageIndex].width()
+            scaleX = max(1.35, self.imgArray[self.imageIndex].width() / self.lblImagePdf.width())
+            scaleY = max(1.35, self.imgArray[self.imageIndex].width() / self.lblImagePdf.width())
             sectorX = max(0,int(event.x()-self.lblImagePdf.pos().x()*scaleX))
-            sectorY = int(event.y()-self.lblImagePdf.pos().y()*scaleY)
+            sectorY = max(0, int(event.y()-self.lblImagePdf.pos().y()*scaleY))
             self.follower_label.setHidden(False)
             self.update_follower_position()
-            print (str(sectorX)+", "+str(sectorY))
+            print (str(scaleX)+", "+str(scaleY))
             recorte = self.imgArray[self.imageIndex].copy(sectorX, sectorY, 256, 128)
             self.follower_label.setPixmap(recorte)
             
