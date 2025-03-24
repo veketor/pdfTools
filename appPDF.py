@@ -21,11 +21,10 @@ def pdf_to_qpixmaps(pdf_path):
     doc = None
     try:
         doc = fitz.open(pdf_path)
-        qpixmaps = []
-        
+        qpixmapsArray = []
+        mat = fitz.Matrix(0.75, 0.75)
         for page_num in range(len(doc)):
             page = doc.load_page(page_num)
-            mat = fitz.Matrix(0.75, 0.75) 
             try:
                 pix = page.get_pixmap(matrix=mat, alpha=False)
                 fmt = QImage.Format_RGB888
@@ -37,16 +36,16 @@ def pdf_to_qpixmaps(pdf_path):
                 qpixmap = QPixmap.fromImage(qtimg)
                 if qpixmap.isNull():
                     raise Exception("QPixmap inválido")
-                qpixmaps.append(qpixmap)
+                qpixmapsArray.append(qpixmap)
             except Exception as e:
                 print(f"Error en página {page_num}: {str(e)}")
                 continue
     finally:
         if doc:
             doc.close()
-    return qpixmaps
+    return qpixmapsArray
 
-class FileDropWindow(QMainWindow):   
+class pdfMegaTools(QMainWindow):   
     def __init__(self):
         super().__init__()
         self.status = procesStatus.WAITINGFILE
@@ -83,7 +82,10 @@ class FileDropWindow(QMainWindow):
         if self.sbPagFin.value() > len(self.imgArray):
             self.sbPagFin.setValue(len(self.imgArray))
         else:
-            self.setPdfPageInView(self.sbPagFin.value())
+            if (self.sbPagFin.value() <= self.sbPagIni.value()):
+                self.sbPagFin.setValue(self.sbPagIni.value())
+            self.imageIndex = self.sbPagFin.value()-1
+            self.setPdfPageInView(self.imageIndex)
             
     def incrementFin(self):
         self.sbPagFin.setValue(self.sbPagIni.value()+1)
@@ -103,7 +105,9 @@ class FileDropWindow(QMainWindow):
         self.sbPagIni.setValue(self.sbPagFin.value()+1)
         self.sbPagFin.setValue(self.sbPagFin.value()+2)
         self.cbTipoDoc.setFocusPolicy(Qt.StrongFocus)   
-        self.cbTipoDoc.setFocus()   
+        self.cbTipoDoc.setFocus()
+        self.imageIndex = self.sbPagIni.value()-1
+        self.setPdfPageInView(self.imageIndex)
         
     def restartProccess(self):
         self.status = procesStatus.WAITINGFILE
@@ -131,9 +135,9 @@ class FileDropWindow(QMainWindow):
         if isinstance(event, QKeyEvent):
             theKey = event.text()
             theKeyCode = event.key()
-            if theKeyCode == 16777264:
+            if theKeyCode == 16777264: #F1
                 self.prevPage()
-            if theKeyCode == 16777265:
+            if theKeyCode == 16777265: #F2
                 self.nextPage()
             
     def btnSetNum(self):
@@ -147,7 +151,6 @@ class FileDropWindow(QMainWindow):
     
     def setPdfPageInView(self, pageNum):        
         self.lblImagePdf.setPixmap(self.imgArray[pageNum])
-        self.updateLblPageNum()
         self.updateLblPageNum()
     
     def prevPage(self):
@@ -194,7 +197,7 @@ class FileDropWindow(QMainWindow):
                 self.imageIndex = 0
 
                 if len(self.imgArray) > 0:
-                    self.lblImagePdf.setPixmap(self.imgArray[0])
+                    self.lblImagePdf.setPixmap(self.imgArray[self.imageIndex])
                     self.lblImagePdf.setScaledContents(True)
                     self.updateLblPageNum()
                     self.status = procesStatus.WAITINGNUMBER
@@ -243,7 +246,7 @@ class FileDropWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     
-    window = FileDropWindow()
-    window.show()
+    myPdfApp = pdfMegaTools()
+    myPdfApp.show()
 
     sys.exit(app.exec_())
