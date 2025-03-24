@@ -636,6 +636,7 @@
      <string>Acciones</string>
     </property>
     <addaction name="actionReset"/>
+    <addaction name="actionConfig"/>
     <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuAction"/>
@@ -659,6 +660,11 @@
   <action name="actionReset">
    <property name="text">
     <string>Reiniciar</string>
+   </property>
+  </action>
+  <action name="actionConfig">
+   <property name="text">
+    <string>Configuración</string>
    </property>
   </action>
  </widget>

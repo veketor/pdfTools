@@ -52,6 +52,7 @@ class FileDropWindow(QMainWindow):
         self.status = procesStatus.WAITINGFILE
         # Load UI
         uic.loadUi('pdfTools.ui', self)
+        #uic.loadUi('configPdfTools.ui', self)
         # Enable drag and drop functionality
         self.setAcceptDrops(True)
         self.lblOriginalFileName.setText("Arrastra un pdf para cargarlo")
@@ -67,6 +68,7 @@ class FileDropWindow(QMainWindow):
         self.pbAdd.clicked.connect(self.addSectionToTable)
         self.setMouseTracking(True)
         self.actionReset.triggered.connect(self.restart)
+        self.actionConfig.triggered.connect(self.config)
         self.actionQuit.triggered.connect(self.close)
         self.lblImagePdf.enterEvent = self.handle_mouse_enter
         self.lblImagePdf.leaveEvent = self.handle_mouse_leave
@@ -113,11 +115,12 @@ class FileDropWindow(QMainWindow):
         self.tableWidget.setRowCount(0)
         
     def close(self):
-        print("Salimos")
         QApplication.quit()
    
+    def config(self):
+        print("Abrir ventana")
+        
     def restart(self):
-        print("Restarting")
         self.restartProccess()
         
     def keyPressEvent(self, event):
@@ -135,8 +138,6 @@ class FileDropWindow(QMainWindow):
             self.group02.setEnabled(True)
             self.tableWidget.setEnabled(True)
             self.group01.setEnabled(False)            
-            print ("HURRA")
-        print ("OK")
         
     def prevPage(self):
         if self.imageIndex > 0:
@@ -170,56 +171,45 @@ class FileDropWindow(QMainWindow):
     def dropEvent(self, event):
         if self.fileLoaded:
             return
-        # Get the dropped file paths
+
         files = [u.toLocalFile() for u in event.mimeData().urls()]
-        
-        # Print each file path
+
         for f in files:
             if f.lower().endswith(('.pdf')):
-                print(f"Dropped file: {f}")
                 self.lblOriginalFileName.setText(f)
                 self.fileLoaded = True
                 self.group01.setEnabled(True)
                 self.btnConfNum.setEnabled(False)
                 self.status = procesStatus.PROCESSINGFILE
-                #self.btnProcess.setEnabled(True)
-                print("TENEMOS IMAGEN PRE")
                 self.imgArray = pdf_to_qpixmaps(f)
-                print("TENEMOS IMAGEN POST")
                 self.imageIndex = 0
 
                 if len(self.imgArray) > 0:
-                    print("TENEMOS IMAGEN")
                     self.lblImagePdf.setPixmap(self.imgArray[0])
                     self.lblImagePdf.setScaledContents(True)
-                    print("OK IMAGE")
                     self.updateLblPageNum()
                     self.status = procesStatus.WAITINGNUMBER
                 else:
                     print("Error")
-                return#Only accept one file
+                return
     
     def handle_mouse_enter(self, event):
-        print("Mouse entered lblImagePdf")
+        return
+        #print("Mouse entered lblImagePdf")
         #self.follower_label.setHidden(False)
-
     
     def handle_mouse_leave(self, event):
-        print("Mouse left lblImagePdf")
         self.follower_label.setHidden(True)
         
     def update_follower_position(self):
-        # Get global mouse position
         global_pos = self.mapFromGlobal(self.cursor().pos())
-        
-        # Position label near cursor but slightly offset
+        yOffsetUpdatePos = int(self.follower_label.height()/2)
         x = global_pos.x() - self.follower_label.width()
-        y = global_pos.y() - self.follower_label.height()
+        y = global_pos.y() - (self.follower_label.height() - 128)
         
-        # Ensure label stays within window bounds
-        x = max(0, min(x, self.width() - self.follower_label.width()))
-        y = max(0, min(y, self.height() - self.follower_label.height()))
-        self.follower_label.move(x, y)
+        pX = max(0, min(x, self.width() - self.follower_label.width()))
+        pY = max(0, min(y, self.height() - self.follower_label.height()))
+        self.follower_label.move(pX, pY)
   
     def constrain(value, min_val=0.1, max_val=1.0):
         return max(min_val, min(value, max_val))
@@ -229,22 +219,20 @@ class FileDropWindow(QMainWindow):
         if self.lblImagePdf.geometry().contains(event.x(), event.y()):
             if len(self.imgArray) == 0:
                 return
+            yOffset = 0
             scaleX = max(1.35, self.imgArray[self.imageIndex].width() / self.lblImagePdf.width())
             scaleY = max(1.35, self.imgArray[self.imageIndex].width() / self.lblImagePdf.width())
             sectorX = max(0,int(event.x()-self.lblImagePdf.pos().x()*scaleX))
-            sectorY = max(0, int(event.y()-self.lblImagePdf.pos().y()*scaleY))
+            sectorY = max(0, int(event.y()-self.lblImagePdf.pos().y()*scaleY + yOffset))
             self.follower_label.setHidden(False)
             self.update_follower_position()
             recorte = self.imgArray[self.imageIndex].copy(sectorX, sectorY, 256, 128)
             self.follower_label.setPixmap(recorte)
             
 if __name__ == '__main__':
-    # Create the application
     app = QApplication(sys.argv)
     
-    # Create and show the window
     window = FileDropWindow()
     window.show()
-    
-    # Run the application
+
     sys.exit(app.exec_())
