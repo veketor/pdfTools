@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel
+from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QTableWidgetItem, QTableWidget
 from PyQt5.QtGui import QImage, QPixmap, QKeyEvent
 from PyQt5.QtCore import QEvent, Qt, QPoint
 from PyQt5 import QtWidgets, uic
@@ -16,33 +16,6 @@ class procesStatus(Enum):
     CREATINGSECTIONS = 3
     PROCECSSINGSECTIONS = 4
     FINISHED = 5
-
-# def pdf_to_qpixmaps(pdf_path):
-    # doc = None
-    # try:
-        # # Open the PDF document
-        # doc = fitz.open(pdf_path)
-        # qpixmaps = []
-        # for page_num in range(len(doc)):
-            # page = doc.load_page(page_num)
-            # pix = page.get_pixmap()
-            # # Create QImage from pixmap samples
-            # # Using RGBA8888 format for maximum compatibility
-            # print ("1")
-            # fmt = QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
-            # print ("2")
-            # qtimg = QImage(pix.samples_ptr, pix.width, pix.height, fmt)
-            # print ("3")
-            # # Create QPixmap from QImage
-            # qpixmap = QPixmap.fromImage(qtimg)
-            # print ("4")
-            # qpixmaps.append(qpixmap)
-            # print ("5")
-        # print ("6")
-        # return qpixmaps       
-    # finally:
-        # if doc:
-            # doc.close()
 
 def pdf_to_qpixmaps(pdf_path):
     doc = None
@@ -89,6 +62,7 @@ class FileDropWindow(QMainWindow):
         self.imageIndex = 0
         self.imgArray = []
         self.sbPaciente.valueChanged.connect(self.onPacientChange)
+        self.pbAdd.clicked.connect(self.addSectionToTable)
         self.setMouseTracking(True)
         self.actionReset.triggered.connect(self.restart)
         self.actionQuit.triggered.connect(self.close)
@@ -100,7 +74,22 @@ class FileDropWindow(QMainWindow):
         self.follower_label.setText("Following mouse...")
         self.follower_label.setHidden(True)
 
- 
+        
+        
+        
+    def addSectionToTable(self):
+        startPage = str(self.sbPagIni.value())
+        endPage = str(self.sbPagFin.value())
+        docType = str(self.cbTipoDoc.currentText())
+        date = str(self.dateEdit.date().toPyDate())
+        curRow = self.tableWidget.rowCount()
+        self.tableWidget.insertRow(curRow)
+        self.tableWidget.setItem(curRow , 0, QTableWidgetItem(startPage))
+        self.tableWidget.setItem(curRow , 1, QTableWidgetItem(endPage))
+        self.tableWidget.setItem(curRow , 2, QTableWidgetItem(docType))
+        self.tableWidget.setItem(curRow , 3, QTableWidgetItem(date))
+        self.btnProcess.setEnabled(True)
+        
     def restartProccess(self):
         self.status = procesStatus.WAITINGFILE
         self.lblOriginalFileName.clear()
