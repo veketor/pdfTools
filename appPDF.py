@@ -81,8 +81,10 @@ class FileDropWindow(QMainWindow):
         
     def checkMax(self):
         if self.sbPagFin.value() > len(self.imgArray):
-           self.sbPagFin.setValue(len(self.imgArray)) 
-    
+            self.sbPagFin.setValue(len(self.imgArray))
+        else:
+            self.setPdfPageInView(self.sbPagFin.value())
+            
     def incrementFin(self):
         self.sbPagFin.setValue(self.sbPagIni.value()+1)
         
@@ -100,6 +102,8 @@ class FileDropWindow(QMainWindow):
         self.btnProcess.setEnabled(True)
         self.sbPagIni.setValue(self.sbPagFin.value()+1)
         self.sbPagFin.setValue(self.sbPagFin.value()+2)
+        self.cbTipoDoc.setFocusPolicy(Qt.StrongFocus)   
+        self.cbTipoDoc.setFocus()   
         
     def restartProccess(self):
         self.status = procesStatus.WAITINGFILE
@@ -137,19 +141,24 @@ class FileDropWindow(QMainWindow):
             self.sbPaciente.value()
             self.group02.setEnabled(True)
             self.tableWidget.setEnabled(True)
-            self.group01.setEnabled(False)            
-        
+            self.group01.setEnabled(False)
+            self.cbTipoDoc.setFocusPolicy(Qt.StrongFocus)   
+            self.cbTipoDoc.setFocus()            
+    
+    def setPdfPageInView(self, pageNum):        
+        self.lblImagePdf.setPixmap(self.imgArray[pageNum])
+        self.updateLblPageNum()
+        self.updateLblPageNum()
+    
     def prevPage(self):
         if self.imageIndex > 0:
             self.imageIndex = self.imageIndex -1
-            self.lblImagePdf.setPixmap(self.imgArray[self.imageIndex])
-            self.updateLblPageNum()
+            self.setPdfPageInView(self.imageIndex)
             
     def nextPage(self):
         if self.imageIndex < len(self.imgArray)-1:
             self.imageIndex = self.imageIndex +1
-            self.lblImagePdf.setPixmap(self.imgArray[self.imageIndex])
-            self.updateLblPageNum()
+            self.setPdfPageInView(self.imageIndex)
             
     def updateLblPageNum(self):
         text = str(self.imageIndex+1) + "/" +str(len(self.imgArray))
@@ -189,6 +198,7 @@ class FileDropWindow(QMainWindow):
                     self.lblImagePdf.setScaledContents(True)
                     self.updateLblPageNum()
                     self.status = procesStatus.WAITINGNUMBER
+                    self.sbPaciente.setFocus()
                 else:
                     print("Error")
                 return
@@ -215,8 +225,9 @@ class FileDropWindow(QMainWindow):
         return max(min_val, min(value, max_val))
 
   
-    def mouseMoveEvent(self, event):             
-        if self.lblImagePdf.geometry().contains(event.x(), event.y()):
+    def mouseMoveEvent(self, event):
+        scaleAdjustment = 0.9
+        if self.lblImagePdf.geometry().contains(event.x(), int(event.y()*scaleAdjustment)):
             if len(self.imgArray) == 0:
                 return
             yOffset = 0
