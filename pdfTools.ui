@@ -343,6 +343,12 @@
         <height>22</height>
        </rect>
       </property>
+      <property name="minimum">
+       <number>2</number>
+      </property>
+      <property name="maximum">
+       <number>999</number>
+      </property>
      </widget>
      <widget class="QLabel" name="lblPagIni">
       <property name="enabled">
@@ -381,6 +387,15 @@
         <width>42</width>
         <height>22</height>
        </rect>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <number>998</number>
+      </property>
+      <property name="value">
+       <number>1</number>
       </property>
      </widget>
     </widget>

@@ -59,6 +59,8 @@ class FileDropWindow(QMainWindow):
         self.btnConfNum.clicked.connect(self.btnSetNum)
         self.pbPrevPage.clicked.connect(self.prevPage)
         self.pbNextPage.clicked.connect(self.nextPage)
+        self.sbPagFin.valueChanged.connect(self.checkMax)
+        self.sbPagIni.valueChanged.connect(self.incrementFin)
         self.imageIndex = 0
         self.imgArray = []
         self.sbPaciente.valueChanged.connect(self.onPacientChange)
@@ -75,7 +77,12 @@ class FileDropWindow(QMainWindow):
         self.follower_label.setHidden(True)
 
         
-        
+    def checkMax(self):
+        if self.sbPagFin.value() > len(self.imgArray):
+           self.sbPagFin.setValue(len(self.imgArray)) 
+    
+    def incrementFin(self):
+        self.sbPagFin.setValue(self.sbPagIni.value()+1)
         
     def addSectionToTable(self):
         startPage = str(self.sbPagIni.value())
@@ -89,6 +96,8 @@ class FileDropWindow(QMainWindow):
         self.tableWidget.setItem(curRow , 2, QTableWidgetItem(docType))
         self.tableWidget.setItem(curRow , 3, QTableWidgetItem(date))
         self.btnProcess.setEnabled(True)
+        self.sbPagIni.setValue(self.sbPagFin.value()+1)
+        self.sbPagFin.setValue(self.sbPagFin.value()+2)
         
     def restartProccess(self):
         self.status = procesStatus.WAITINGFILE
@@ -99,6 +108,9 @@ class FileDropWindow(QMainWindow):
         self.fileLoaded = False
         self.imageIndex = 0
         self.imgArray = []
+        self.sbPagIni.setValue(1)
+        self.sbPagFin.setValue(2)
+        self.tableWidget.setRowCount(0)
         
     def close(self):
         print("Salimos")
@@ -215,7 +227,6 @@ class FileDropWindow(QMainWindow):
   
     def mouseMoveEvent(self, event):             
         if self.lblImagePdf.geometry().contains(event.x(), event.y()):
-            #print(f"Posición del ratón sobre el label: {event.x()}, {event.y()}")
             if len(self.imgArray) == 0:
                 return
             scaleX = max(1.35, self.imgArray[self.imageIndex].width() / self.lblImagePdf.width())
@@ -224,7 +235,6 @@ class FileDropWindow(QMainWindow):
             sectorY = max(0, int(event.y()-self.lblImagePdf.pos().y()*scaleY))
             self.follower_label.setHidden(False)
             self.update_follower_position()
-            print (str(scaleX)+", "+str(scaleY))
             recorte = self.imgArray[self.imageIndex].copy(sectorX, sectorY, 256, 128)
             self.follower_label.setPixmap(recorte)
             
