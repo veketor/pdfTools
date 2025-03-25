@@ -161,9 +161,9 @@
      <widget class="QDateEdit" name="dateEdit">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>120</x>
         <y>80</y>
-        <width>110</width>
+        <width>90</width>
         <height>22</height>
        </rect>
       </property>
@@ -396,6 +396,19 @@
       </property>
       <property name="value">
        <number>1</number>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="rbSinFecha">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>80</y>
+        <width>89</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Sin fecha</string>
       </property>
      </widget>
     </widget>
@@ -663,6 +676,9 @@
    </property>
   </action>
   <action name="actionConfig">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Configuración</string>
    </property>

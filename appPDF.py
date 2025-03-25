@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QTableWidgetItem, QTableWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QTableWidgetItem, QTableWidget, QMenu, QAction, QMessageBox
 from PyQt5.QtGui import QImage, QPixmap, QKeyEvent
 from PyQt5.QtCore import QEvent, Qt, QPoint
 from PyQt5 import QtWidgets, uic
@@ -76,7 +76,8 @@ class pdfMegaTools(QMainWindow):
         self.follower_label.setStyleSheet("background-color: lightblue; border: 1px solid black")
         self.follower_label.setText("Following mouse...")
         self.follower_label.setHidden(True)
-
+        self.tableWidget.setContextMenuPolicy(3)
+        self.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
         
     def checkMax(self):
         if self.sbPagFin.value() > len(self.imgArray):
@@ -88,7 +89,7 @@ class pdfMegaTools(QMainWindow):
             self.setPdfPageInView(self.imageIndex)
             
     def incrementFin(self):
-        self.sbPagFin.setValue(self.sbPagIni.value()+1)
+        self.sbPagFin.setValue(self.sbPagIni.value()+0)
         
     def addSectionToTable(self):
         startPage = str(self.sbPagIni.value())
@@ -103,11 +104,12 @@ class pdfMegaTools(QMainWindow):
         self.tableWidget.setItem(curRow , 3, QTableWidgetItem(date))
         self.btnProcess.setEnabled(True)
         self.sbPagIni.setValue(self.sbPagFin.value()+1)
-        self.sbPagFin.setValue(self.sbPagFin.value()+2)
         self.cbTipoDoc.setFocusPolicy(Qt.StrongFocus)   
         self.cbTipoDoc.setFocus()
         self.imageIndex = self.sbPagIni.value()-1
         self.setPdfPageInView(self.imageIndex)
+        self.make_columns_readonly()
+        #self.rbSinFecha
         
     def restartProccess(self):
         self.status = procesStatus.WAITINGFILE
@@ -242,6 +244,47 @@ class pdfMegaTools(QMainWindow):
             self.update_follower_position()
             recorte = self.imgArray[self.imageIndex].copy(sectorX, sectorY, 256, 128)
             self.follower_label.setPixmap(recorte)
+
+    def make_columns_readonly(self):
+        row_count = self.tableWidget.rowCount()
+        col_indices = [2, 3]
+
+        for row in range(row_count):
+            for col in col_indices:
+                item = self.tableWidget.item(row, col)
+                if item is None:
+                    item = QTableWidgetItem("")  # Si la celda está vacía, crea un item
+                    self.tableWidget.setItem(row, col, item)
+
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)  # Deshabilitar edición
+
+    def show_context_menu(self, position):
+        menu = QMenu(self)
+
+        delete_action = QAction("Borrar", self)
+        delete_action.triggered.connect(self.delete_item)
+        menu.addAction(delete_action)
+
+        #modify_action = QAction("Modificar", self)
+        #modify_action.triggered.connect(self.modify_item)
+        #menu.addAction(modify_action)
+
+        menu.exec_(self.tableWidget.viewport().mapToGlobal(position))
+
+    def modify_item(self):
+        selected = self.tableWidget.currentItem()
+        if selected:
+            QMessageBox.information(self, "Modificar", f"Modificando: {selected.text()}")
+        else:
+            QMessageBox.warning(self, "Modificar", "No hay ninguna celda seleccionada.")
+
+    def delete_item(self):
+        selected = self.tableWidget.currentItem()
+        if selected:
+            row = selected.row()
+            self.tableWidget.removeRow(row)
+        else:
+            QMessageBox.warning(self, "Borrar", "No hay ninguna celda seleccionada.")
             
 if __name__ == '__main__':
     app = QApplication(sys.argv)
