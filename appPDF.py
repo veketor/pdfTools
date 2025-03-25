@@ -6,6 +6,7 @@ import sys
 #import pdfTools
 import concurrent.futures
 import fitz
+import os
 from enum import Enum
 
 
@@ -48,6 +49,9 @@ def pdf_to_qpixmaps(pdf_path):
 class pdfMegaTools(QMainWindow):   
     def __init__(self):
         super().__init__()
+        self.pathToSave = "reports"
+        if not os.path.exists(self.pathToSave):
+            os.makedirs(self.pathToSave)
         self.status = procesStatus.WAITINGFILE
         # Load UI
         uic.loadUi('pdfTools.ui', self)
@@ -56,6 +60,7 @@ class pdfMegaTools(QMainWindow):
         self.setAcceptDrops(True)
         self.lblOriginalFileName.setText("Arrastra un pdf para cargarlo")
         self.fileLoaded = False
+        self.currentPDFpath = ""
         self.btnConfNum.clicked.connect(self.btnSetNum)
         self.pbPrevPage.clicked.connect(self.prevPage)
         self.pbNextPage.clicked.connect(self.nextPage)
@@ -78,7 +83,9 @@ class pdfMegaTools(QMainWindow):
         self.follower_label.setHidden(True)
         self.tableWidget.setContextMenuPolicy(3)
         self.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
-        
+        self.rbSinFecha.hide()
+        self.btnProcess.clicked.connect(self.batchSplit)
+                
     def checkMax(self):
         if self.sbPagFin.value() > len(self.imgArray):
             self.sbPagFin.setValue(len(self.imgArray))
@@ -109,10 +116,10 @@ class pdfMegaTools(QMainWindow):
         self.imageIndex = self.sbPagIni.value()-1
         self.setPdfPageInView(self.imageIndex)
         self.make_columns_readonly()
-        #self.rbSinFecha
         
     def restartProccess(self):
         self.status = procesStatus.WAITINGFILE
+        self.currentPDFpath = ""
         self.lblOriginalFileName.clear()
         self.lblOriginalFileName.setText("Arrastra un pdf para cargarlo")
         self.lblImagePdf.clear()
@@ -137,7 +144,6 @@ class pdfMegaTools(QMainWindow):
         if isinstance(event, QKeyEvent):
             theKey = event.text()
             theKeyCode = event.key()
-            print(str(theKeyCode))
             if theKeyCode == 16777264: #F1
                 self.prevPage()
             if theKeyCode == 16777265: #F2
@@ -207,8 +213,11 @@ class pdfMegaTools(QMainWindow):
                     self.updateLblPageNum()
                     self.status = procesStatus.WAITINGNUMBER
                     self.sbPaciente.setFocus()
+                    self.currentPDFpath = f
+                    print ("Ruta del pdf: "+f)
                 else:
                     print("Error")
+                    self.currentPDFpath = ""
                 return
     
     def handle_mouse_enter(self, event):
@@ -288,7 +297,43 @@ class pdfMegaTools(QMainWindow):
             self.tableWidget.removeRow(row)
         else:
             QMessageBox.warning(self, "Borrar", "No hay ninguna celda seleccionada.")
+
+    def batchSplit(self):
+        row_count = self.tableWidget.rowCount()
+        values = []
+        pathFolder = self.pathToSave+"/"+str(self.sbPaciente.value())
+        if not os.path.exists(pathFolder):
+            os.makedirs(pathFolder)
+        for row in range(row_count):
+            rowValues = []
+            for col in range(4):
+                item = self.tableWidget.item(row, col)
+                value = item.text() if item is not None else ""
+                rowValues.append(value)
+            pdfName = str(self.sbPaciente.value())+"_"+rowValues[2].replace(" ", "")+"_"+rowValues[3]
+            fileIndex = ""                
+            #print("\t".join(rowValues))
+            print (pdfName+".pdf" +" | [" +str(rowValues[0])+", "+str(rowValues[1])+"]")
+            self.saveSubPDF(self.currentPDFpath, int(rowValues[0]), int(rowValues[1]), pathFolder+"/"+pdfName+".pdf")
+            values.append(rowValues)
             
+    def saveSubPDF(self, path, pageFrom, pageTo, name):
+        doc = fitz.open(path)             
+        if pageFrom < 1:
+            raise ValueError(f"Error: La página inicial {pageFrom} debe ser mayor o igual a 1")
+        if pageTo > doc.page_count:
+            raise ValueError(f"Error: La página final {pageTo} excede el número total de páginas ({doc.page_count})")
+        if pageFrom > pageTo:
+            pTemp = pageFrom
+            pageTo = pageFrom
+            pageFrom = pTemp            
+        newPDF = fitz.open()       
+        for pageNum in range(pageFrom - 1, pageTo):
+            newPDF.insert_pdf(doc, from_page=pageNum, to_page=pageNum)
+        newPDF.save(name)
+        doc.close()
+        newPDF.close()
+        
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     
