@@ -137,10 +137,13 @@ class pdfMegaTools(QMainWindow):
         if isinstance(event, QKeyEvent):
             theKey = event.text()
             theKeyCode = event.key()
+            print(str(theKeyCode))
             if theKeyCode == 16777264: #F1
                 self.prevPage()
             if theKeyCode == 16777265: #F2
                 self.nextPage()
+            if theKeyCode == 16777216: #escape
+                self.cbTipoDoc.setFocus(True)
             
     def btnSetNum(self):
         if self.status == procesStatus.WAITINGNUMBER:

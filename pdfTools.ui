@@ -691,11 +691,12 @@
   <tabstop>sbPagIni</tabstop>
   <tabstop>sbPagFin</tabstop>
   <tabstop>dateEdit</tabstop>
+  <tabstop>rbSinFecha</tabstop>
   <tabstop>pbAdd</tabstop>
-  <tabstop>tableWidget</tabstop>
   <tabstop>btnProcess</tabstop>
   <tabstop>pbPrevPage</tabstop>
   <tabstop>pbNextPage</tabstop>
+  <tabstop>tableWidget</tabstop>
  </tabstops>
  <resources/>
  <connections/>
