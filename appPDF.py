@@ -301,7 +301,7 @@ class pdfMegaTools(QMainWindow):
     def batchSplit(self):
         row_count = self.tableWidget.rowCount()
         values = []
-        pathFolder = self.pathToSave+"/"+str(self.sbPaciente.value())
+        pathFolder = self.pathToSave+"\\"+str(self.sbPaciente.value())
         if not os.path.exists(pathFolder):
             os.makedirs(pathFolder)
         for row in range(row_count):
@@ -313,12 +313,12 @@ class pdfMegaTools(QMainWindow):
             pdfName = str(self.sbPaciente.value())+"_"+rowValues[2].replace(" ", "")+"_"+rowValues[3]
             fileIndex = ""                
             #print("\t".join(rowValues))
-            print (pdfName+".pdf" +" | [" +str(rowValues[0])+", "+str(rowValues[1])+"]")
-            self.saveSubPDF(self.currentPDFpath, int(rowValues[0]), int(rowValues[1]), pathFolder+"/"+pdfName+".pdf")
+            #print (pdfName+".pdf" +" | [" +str(rowValues[0])+", "+str(rowValues[1])+"]")
+            self.saveSubPDF(self.currentPDFpath, int(rowValues[0]), int(rowValues[1]), pathFolder, pdfName, ".pdf")
             values.append(rowValues)
-            os.startfile(self.pathToSave)
+            os.startfile(self.pathToSave+"\\"+str(self.sbPaciente.value()))
             
-    def saveSubPDF(self, path, pageFrom, pageTo, name):
+    def saveSubPDF(self, path, pageFrom, pageTo, folderName, fileName, extension):
         doc = fitz.open(path)             
         if pageFrom < 1:
             raise ValueError(f"Error: La página inicial {pageFrom} debe ser mayor o igual a 1")
@@ -331,21 +331,19 @@ class pdfMegaTools(QMainWindow):
         newPDF = fitz.open()       
         for pageNum in range(pageFrom - 1, pageTo):
             newPDF.insert_pdf(doc, from_page=pageNum, to_page=pageNum)
-        valName = self.getValidName(path, name, ".pdf")
+        valName = self.getValidName(folderName, fileName, extension)
         print ("-->"+valName)
-        newPDF.save(valName)
+        newPDF.save(folderName+"\\"+valName)
         doc.close()
         newPDF.close()
     
-    def getValidName(self, path, fileName, extension):
-        if not os.path.exists(path+"/"+fileName+extension):
-            print("Usamos el nombre que me has dado "+path+"/"+fileName+extension)
-            return fileName
+    def getValidName(self, folderName, fileName, extension):
+        if not os.path.exists(folderName+"\\"+fileName+extension):
+            return fileName+extension
         numIndex = 1
-        while os.path.exists(path+"/"+fileName+str(numIndex).zfill(3)+extension):
-            numIndex = numIndex+1
-        print("El nombre estaba en uso, usaremos "+fileName+str(numIndex).zfill(3))    
-        return fileName+str(numIndex).zfill(3)
+        while os.path.exists(folderName+"\\"+fileName+"_"+str(numIndex).zfill(3)+extension):
+            numIndex = numIndex+1  
+        return fileName+"_"+str(numIndex).zfill(3)+extension
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
