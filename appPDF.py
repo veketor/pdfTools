@@ -99,23 +99,34 @@ class pdfMegaTools(QMainWindow):
         self.sbPagFin.setValue(self.sbPagIni.value()+0)
         
     def addSectionToTable(self):
+        print("1")
         startPage = str(self.sbPagIni.value())
         endPage = str(self.sbPagFin.value())
         docType = str(self.cbTipoDoc.currentText())
         date = str(self.dateEdit.date().toPyDate())
         curRow = self.tableWidget.rowCount()
         self.tableWidget.insertRow(curRow)
+        print("2")
         self.tableWidget.setItem(curRow , 0, QTableWidgetItem(startPage))
         self.tableWidget.setItem(curRow , 1, QTableWidgetItem(endPage))
         self.tableWidget.setItem(curRow , 2, QTableWidgetItem(docType))
         self.tableWidget.setItem(curRow , 3, QTableWidgetItem(date))
         self.btnProcess.setEnabled(True)
-        self.sbPagIni.setValue(self.sbPagFin.value()+1)
+        print("3")
+        if self.sbPagFin.value()+1 < len(self.imgArray):
+            print ("3 incremento sbPagIni")
+            self.sbPagIni.setValue(self.sbPagFin.value()+1)
+        print("4")
         self.cbTipoDoc.setFocusPolicy(Qt.StrongFocus)   
         self.cbTipoDoc.setFocus()
-        self.imageIndex = self.sbPagIni.value()-1
-        self.setPdfPageInView(self.imageIndex)
+        print("5")
+        if self.sbPagIni.value() <= len(self.imgArray):
+            print("Incremento pre")
+            self.imageIndex = self.sbPagIni.value()-1
+            self.setPdfPageInView(self.imageIndex)
+            print("Incremento post")
         self.make_columns_readonly()
+        print("FIN")
         
     def restartProccess(self):
         self.status = procesStatus.WAITINGFILE
