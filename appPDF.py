@@ -316,6 +316,7 @@ class pdfMegaTools(QMainWindow):
             print (pdfName+".pdf" +" | [" +str(rowValues[0])+", "+str(rowValues[1])+"]")
             self.saveSubPDF(self.currentPDFpath, int(rowValues[0]), int(rowValues[1]), pathFolder+"/"+pdfName+".pdf")
             values.append(rowValues)
+            os.startfile(self.pathToSave)
             
     def saveSubPDF(self, path, pageFrom, pageTo, name):
         doc = fitz.open(path)             
@@ -330,9 +331,21 @@ class pdfMegaTools(QMainWindow):
         newPDF = fitz.open()       
         for pageNum in range(pageFrom - 1, pageTo):
             newPDF.insert_pdf(doc, from_page=pageNum, to_page=pageNum)
-        newPDF.save(name)
+        valName = self.getValidName(path, name, ".pdf")
+        print ("-->"+valName)
+        newPDF.save(valName)
         doc.close()
         newPDF.close()
+    
+    def getValidName(self, path, fileName, extension):
+        if not os.path.exists(path+"/"+fileName+extension):
+            print("Usamos el nombre que me has dado "+path+"/"+fileName+extension)
+            return fileName
+        numIndex = 1
+        while os.path.exists(path+"/"+fileName+str(numIndex).zfill(3)+extension):
+            numIndex = numIndex+1
+        print("El nombre estaba en uso, usaremos "+fileName+str(numIndex).zfill(3))    
+        return fileName+str(numIndex).zfill(3)
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
