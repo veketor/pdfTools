@@ -8,6 +8,7 @@ import concurrent.futures
 import fitz
 import os
 from enum import Enum
+import sqlite3
 
 
 class procesStatus(Enum):
@@ -85,7 +86,9 @@ class pdfMegaTools(QMainWindow):
         self.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
         self.rbSinFecha.hide()
         self.btnProcess.clicked.connect(self.batchSplit)
-                
+        self.conn = sqlite3.connect("mostodent.db")
+
+        
     def checkMax(self):
         if self.sbPagFin.value() > len(self.imgArray):
             self.sbPagFin.setValue(len(self.imgArray))
@@ -132,8 +135,10 @@ class pdfMegaTools(QMainWindow):
         self.sbPagIni.setValue(1)
         self.sbPagFin.setValue(2)
         self.tableWidget.setRowCount(0)
+        self.lblNombrePacienteDB.setText(" ..............................................................")
         
     def close(self):
+        self.conn.close()
         QApplication.quit()
    
     def config(self):
@@ -160,7 +165,17 @@ class pdfMegaTools(QMainWindow):
             self.tableWidget.setEnabled(True)
             self.group01.setEnabled(False)
             self.cbTipoDoc.setFocusPolicy(Qt.StrongFocus)   
-            self.cbTipoDoc.setFocus()            
+            self.cbTipoDoc.setFocus()
+            cur = self.conn.cursor()
+            cur.execute('select name, surname from tbl_patient where id = '+str(self.sbPaciente.value()))
+            row = cur.fetchone()
+            print (row)          
+            if row is None:
+                self.lblNombrePacienteDB.setText(" ..............................................................")
+                return 
+            if len(row) > 0:               
+                self.lblNombrePacienteDB.setText(row[0]+" "+row[1])
+
     
     def setPdfPageInView(self, pageNum):        
         self.lblImagePdf.setPixmap(self.imgArray[pageNum])
