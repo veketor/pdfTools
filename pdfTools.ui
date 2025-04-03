@@ -197,7 +197,7 @@
       </item>
       <item>
        <property name="text">
-        <string>Registro Alta</string>
+        <string>Alta</string>
        </property>
       </item>
       <item>
@@ -318,6 +318,11 @@
       <item>
        <property name="text">
         <string>Financiación</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Historial Quirófano</string>
        </property>
       </item>
      </widget>

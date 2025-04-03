@@ -3,13 +3,12 @@ from PyQt5.QtGui import QImage, QPixmap, QKeyEvent
 from PyQt5.QtCore import QEvent, Qt, QPoint
 from PyQt5 import QtWidgets, uic
 import sys
-#import pdfTools
 import concurrent.futures
 import fitz
 import os
 from enum import Enum
 import sqlite3
-
+from customtablewidget import CustomTableWidget 
 
 class procesStatus(Enum):
     WAITINGFILE = 0
@@ -55,7 +54,8 @@ class pdfMegaTools(QMainWindow):
             os.makedirs(self.pathToSave)
         self.status = procesStatus.WAITINGFILE
         # Load UI
-        uic.loadUi('pdfTools.ui', self)
+        uic.loadUi('pdfMagic.ui', self)
+        self.tbPagesConf = self.findChild(CustomTableWidget, 'tbPagesConf')
         #uic.loadUi('configPdfTools.ui', self)
         # Enable drag and drop functionality
         self.setAcceptDrops(True)
@@ -84,10 +84,34 @@ class pdfMegaTools(QMainWindow):
         self.follower_label.setHidden(True)
         self.tableWidget.setContextMenuPolicy(3)
         self.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
-        self.rbSinFecha.hide()
         self.btnProcess.clicked.connect(self.batchSplit)
         self.conn = sqlite3.connect("mostodent.db")
-
+        #To delete
+        curRow = self.tbPagesConf.rowCount()
+        self.tbPagesConf.insertRow(curRow)
+        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
+        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("A"))
+        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("1"))
+        curRow = self.tbPagesConf.rowCount()
+        self.tbPagesConf.insertRow(curRow)
+        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
+        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("B"))
+        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("2"))
+        curRow = self.tbPagesConf.rowCount()
+        self.tbPagesConf.insertRow(curRow)
+        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
+        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("C")) 
+        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("3"))
+        curRow = self.tbPagesConf.rowCount()
+        self.tbPagesConf.insertRow(curRow)
+        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
+        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("D"))
+        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("4"))
+        curRow = self.tbPagesConf.rowCount()
+        self.tbPagesConf.insertRow(curRow)
+        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
+        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("E"))
+        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("5"))
         
     def checkMax(self):
         if self.sbPagFin.value() > len(self.imgArray):
@@ -99,7 +123,12 @@ class pdfMegaTools(QMainWindow):
             self.setPdfPageInView(self.imageIndex)
             
     def incrementFin(self):
-        self.sbPagFin.setValue(self.sbPagIni.value()+0)
+        print("incrementFin")
+        if self.sbPagFin.value() < (len(self.imgArray)):
+            if self.sbPagIni.value() < (len(self.imgArray)+1):
+                self.sbPagFin.setValue(self.sbPagIni.value()+0)
+        #else:
+        #    self.sbPagIni.setValue(len(self.imgArray))
         
     def addSectionToTable(self):
         startPage = str(self.sbPagIni.value())
@@ -121,7 +150,7 @@ class pdfMegaTools(QMainWindow):
             self.imageIndex = self.sbPagIni.value()-1
             self.setPdfPageInView(self.imageIndex)
         self.make_columns_readonly()
-        
+  
     def restartProccess(self):
         self.status = procesStatus.WAITINGFILE
         self.currentPDFpath = ""
