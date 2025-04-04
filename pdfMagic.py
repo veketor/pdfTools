@@ -87,7 +87,6 @@ class pdfMegaTools(QMainWindow):
 
     def updateConfeccionImage(self, row):
         self.lblPDConf.setPixmap(self.imgArray[row])
-        print("Recibido "+str(row))
     
     def checkMax(self):
         if self.sbPagIni.value() > len(self.imgArray):
@@ -239,10 +238,8 @@ class pdfMegaTools(QMainWindow):
                     self.currentPDFpath = f
                     for index in range(len(self.imgArray)):
                         self.tbPagesConf.addFila(self.imgArray[index],str(index+1),"sección libre")
-                    print ("Ruta del pdf: "+f)
                     self.sbPagIni.setMaximum = len(self.imgArray)
                     self.sbPagFin.setMaximum = len(self.imgArray)
-                    print("Puesto el máximo")
                 else:
                     print("Error")
                     self.currentPDFpath = ""

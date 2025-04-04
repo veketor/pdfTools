@@ -21,17 +21,85 @@ class CustomTableWidget(QTableWidget):
         self.dragged_index = None
         self.fila_origen = None  # Para almacenar la fila de origen
         self.cellClicked.connect(self.onClickRow)
-        self.customContextMenuRequested.connect(self.show_context_menu)
+        self.customContextMenuRequested.connect(self.show_table_menu)
         self.setContextMenuPolicy(3)
         
-    def show_context_menu(self, position):
+    def show_table_menu(self, position):
+        clicked_index = self.indexAt(position)
+        if not clicked_index.isValid():
+            return
+        clicked_row = clicked_index.row()
+
         menu = QMenu(self)
-        print("Estamos")
         delete_action = QAction("Borrar", self)
-        #delete_action.triggered.connect(self.delete_item)
+        delete_action.triggered.connect(lambda: self.deleteItem(clicked_row))
+        rotate_action = QAction("Rotar", self)
+        move_menu = QMenu("Mover", self) 
+        for i in range(1, self.rowCount()+1):#crearemos un submenú para cada página.
+            move_sub_action = QAction(f"Mover esta página a {i}", self)
+            move_sub_action.triggered.connect(lambda checked, row=i-1: self.move_to_row(clicked_row, row)) 
+            move_menu.addAction(move_sub_action)       
+        #rotate_action.triggered.connect(self.rotatete_item)
         menu.addAction(delete_action)
+        menu.addAction(rotate_action)
+        menu.addMenu(move_menu)
         menu.exec_(self.viewport().mapToGlobal(position))
+
+    def deleteItem(self, row):
+        print ("to delete "+str(row))
+        if row<0 or row>=self.rowCount():
+            print("Error, fila a borrar fuera de rango")
+            return        
+        self.removeRow(row)
         
+    def move_to_row(self, from_row, to_row):
+        try:
+            # Verificar si el movimiento es válido
+            if from_row == to_row or from_row < 0 or to_row < 0 or from_row >= self.rowCount() or to_row >= self.rowCount():
+                print("Movimiento no válido")
+                return
+            print(f"Moviendo de la fila {from_row} a la fila {to_row}")
+            # Guardar el QWidget de la primera columna y los textos de las otras dos columnas
+            widget_item = self.cellWidget(from_row, 0)  # Obtener el QWidget en la primera columna
+            print("A")
+     
+            # Guardar los textos en las otras dos columnas
+            text_col_1 = self.item(from_row, 1).text() if self.item(from_row, 1) else ""
+            text_col_2 = self.item(from_row, 2).text() if self.item(from_row, 2) else ""
+            print(f"B [{text_col_1}, {text_col_2}]")
+               
+     
+            # Insertar una nueva fila en la posición de destino
+            self.insertRow(to_row)
+            print("C")
+            
+
+
+
+            # Restaurar el QWidget en la nueva fila en la primera columna
+            if widget_item:
+                print("D")
+                # Aseguramos que estamos utilizando un QWidget válido
+                if isinstance(widget_item, QWidget):
+                    self.setCellWidget(to_row, 0, widget_item)
+                else:
+                    print("Error: El item no es un QWidget válido.")
+            
+            # Restaurar los textos en las otras dos columnas
+            print("E")
+            self.setItem(to_row, 1, QTableWidgetItem(text_col_1))
+            self.setItem(to_row, 2, QTableWidgetItem(text_col_2))
+            
+            print("F")
+            # Eliminar la fila original
+            self.removeRow(from_row)
+            print("G")
+            
+        except Exception as e:
+            print(f"Se ha producido un error: {e}")
+            import traceback
+            traceback.print_exc()
+            
     def onClickRow(self, row, col):
         self.cellClickedSignal.emit(row)            
         
@@ -106,7 +174,6 @@ class CustomTableWidget(QTableWidget):
         curRow = self.rowCount()
         self.insertRow(curRow)
         if isinstance(snapshot, QPixmap):
-            print("Imagen")        
             img_label = QLabel()
             img_label.setPixmap(snapshot.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation))
             img_label.setAlignment(Qt.AlignCenter)
