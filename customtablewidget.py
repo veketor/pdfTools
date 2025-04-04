@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView, QLabel, QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, QMimeData
-from PyQt5.QtGui import QDrag
+from PyQt5.QtGui import QDrag, QPixmap
+
 
 class CustomTableWidget(QTableWidget):
     def __init__(self, parent=None):
@@ -53,6 +54,28 @@ class CustomTableWidget(QTableWidget):
 
     def intercambiar_filas(self, fila1, fila2):
         for col in range(3):  # Suponiendo 3 columnas
+            if col == 0:
+                widget1 = self.cellWidget(fila1, col)
+                widget2 = self.cellWidget(fila2, col)
+
+                if widget1 and widget2:
+                    # Crear contenedores nuevos para intercambiar los layouts
+                    nuevo_widget1 = QWidget()
+                    nuevo_widget2 = QWidget()
+
+                    # Extraer los layouts de los widgets originales
+                    layout1 = widget1.layout()
+                    layout2 = widget2.layout()
+
+                    # Asignar los layouts a los nuevos widgets
+                    nuevo_widget1.setLayout(layout2)
+                    nuevo_widget2.setLayout(layout1)
+
+                    # Colocar los nuevos widgets en la tabla
+                    self.setCellWidget(fila1, col, nuevo_widget1)
+                    self.setCellWidget(fila2, col, nuevo_widget2)
+
+                    continue  # Pasar a la siguiente columna sin cambiar texto
             item1 = self.item(fila1, col)
             item2 = self.item(fila2, col)
                         
@@ -66,7 +89,20 @@ class CustomTableWidget(QTableWidget):
     def addFila(self, snapshot, valu1, valu2):
         curRow = self.rowCount()
         self.insertRow(curRow)
-        #self.label.setPixmap(snapshot)
-        self.setItem(curRow , 0, QTableWidgetItem(snapshot))
-        self.setItem(curRow , 1, QTableWidgetItem(valu1))
-        self.setItem(curRow , 2, QTableWidgetItem(valu2))
+        if isinstance(snapshot, QPixmap):
+            print("Imagen")        
+            img_label = QLabel()
+            img_label.setPixmap(snapshot.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            img_label.setAlignment(Qt.AlignCenter)
+            container = QWidget()
+            layout = QVBoxLayout(container)
+            layout.addWidget(img_label)
+            layout.setContentsMargins(0, 0, 0, 0)
+            self.setRowHeight(curRow, 128) 
+            self.setCellWidget(curRow , 0, container)
+            self.setItem(curRow , 1, QTableWidgetItem(valu1))
+            self.setItem(curRow , 2, QTableWidgetItem(valu2))
+        else:                
+            self.setItem(curRow , 0, QTableWidgetItem(snapshot))
+            self.setItem(curRow , 1, QTableWidgetItem(valu1))
+            self.setItem(curRow , 2, QTableWidgetItem(valu2))

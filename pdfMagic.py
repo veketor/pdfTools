@@ -234,12 +234,15 @@ class pdfMegaTools(QMainWindow):
                 self.imageIndex = 0
 
                 if len(self.imgArray) > 0:
+                    self.tbPagesConf.setRowCount(0)
                     self.lblImagePdf.setPixmap(self.imgArray[self.imageIndex])
                     self.lblImagePdf.setScaledContents(True)
                     self.updateLblPageNum()
                     self.status = procesStatus.WAITINGNUMBER
                     self.sbPaciente.setFocus()
                     self.currentPDFpath = f
+                    for index in range(len(self.imgArray)):
+                        self.tbPagesConf.addFila(self.imgArray[index],str(index+1),"sección libre")
                     print ("Ruta del pdf: "+f)
                     self.sbPagIni.setMaximum = len(self.imgArray)
                     self.sbPagFin.setMaximum = len(self.imgArray)
