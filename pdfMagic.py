@@ -87,33 +87,15 @@ class pdfMegaTools(QMainWindow):
         self.btnProcess.clicked.connect(self.batchSplit)
         self.conn = sqlite3.connect("mostodent.db")
         #To delete
-        curRow = self.tbPagesConf.rowCount()
-        self.tbPagesConf.insertRow(curRow)
-        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
-        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("A"))
-        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("1"))
-        curRow = self.tbPagesConf.rowCount()
-        self.tbPagesConf.insertRow(curRow)
-        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
-        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("B"))
-        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("2"))
-        curRow = self.tbPagesConf.rowCount()
-        self.tbPagesConf.insertRow(curRow)
-        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
-        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("C")) 
-        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("3"))
-        curRow = self.tbPagesConf.rowCount()
-        self.tbPagesConf.insertRow(curRow)
-        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
-        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("D"))
-        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("4"))
-        curRow = self.tbPagesConf.rowCount()
-        self.tbPagesConf.insertRow(curRow)
-        self.tbPagesConf.setItem(curRow , 0, QTableWidgetItem("----"))
-        self.tbPagesConf.setItem(curRow , 1, QTableWidgetItem("E"))
-        self.tbPagesConf.setItem(curRow , 2, QTableWidgetItem("5"))
-        
+        self.tbPagesConf.addFila("img1","A","1")
+        self.tbPagesConf.addFila("img2","B","2")
+        self.tbPagesConf.addFila("img3","C","3")
+        self.tbPagesConf.addFila("img4","D","4")
+        self.tbPagesConf.addFila("img5","E","5")
+    
     def checkMax(self):
+        if self.sbPagIni.value() > len(self.imgArray):
+            self.sbPagIni.setValue(len(self.imgArray))
         if self.sbPagFin.value() > len(self.imgArray):
             self.sbPagFin.setValue(len(self.imgArray))
         else:
@@ -123,12 +105,11 @@ class pdfMegaTools(QMainWindow):
             self.setPdfPageInView(self.imageIndex)
             
     def incrementFin(self):
-        print("incrementFin")
+        if self.sbPagIni.value() > len(self.imgArray):
+            self.sbPagIni.setValue(len(self.imgArray))
         if self.sbPagFin.value() < (len(self.imgArray)):
             if self.sbPagIni.value() < (len(self.imgArray)+1):
                 self.sbPagFin.setValue(self.sbPagIni.value()+0)
-        #else:
-        #    self.sbPagIni.setValue(len(self.imgArray))
         
     def addSectionToTable(self):
         startPage = str(self.sbPagIni.value())
@@ -260,6 +241,9 @@ class pdfMegaTools(QMainWindow):
                     self.sbPaciente.setFocus()
                     self.currentPDFpath = f
                     print ("Ruta del pdf: "+f)
+                    self.sbPagIni.setMaximum = len(self.imgArray)
+                    self.sbPagFin.setMaximum = len(self.imgArray)
+                    print("Puesto el máximo")
                 else:
                     print("Error")
                     self.currentPDFpath = ""

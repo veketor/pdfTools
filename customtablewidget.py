@@ -62,3 +62,11 @@ class CustomTableWidget(QTableWidget):
             # Intercambiar valores
             self.setItem(fila1, col, QTableWidgetItem(texto2))
             self.setItem(fila2, col, QTableWidgetItem(texto1))
+            
+    def addFila(self, snapshot, valu1, valu2):
+        curRow = self.rowCount()
+        self.insertRow(curRow)
+        #self.label.setPixmap(snapshot)
+        self.setItem(curRow , 0, QTableWidgetItem(snapshot))
+        self.setItem(curRow , 1, QTableWidgetItem(valu1))
+        self.setItem(curRow , 2, QTableWidgetItem(valu2))
