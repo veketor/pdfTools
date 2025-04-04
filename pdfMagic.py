@@ -53,11 +53,9 @@ class pdfMegaTools(QMainWindow):
         if not os.path.exists(self.pathToSave):
             os.makedirs(self.pathToSave)
         self.status = procesStatus.WAITINGFILE
-        # Load UI
         uic.loadUi('pdfMagic.ui', self)
         self.tbPagesConf = self.findChild(CustomTableWidget, 'tbPagesConf')
-        #uic.loadUi('configPdfTools.ui', self)
-        # Enable drag and drop functionality
+        self.tbPagesConf.cellClickedSignal.connect(self.updateConfeccionImage)
         self.setAcceptDrops(True)
         self.lblOriginalFileName.setText("Arrastra un pdf para cargarlo")
         self.fileLoaded = False
@@ -86,12 +84,10 @@ class pdfMegaTools(QMainWindow):
         self.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
         self.btnProcess.clicked.connect(self.batchSplit)
         self.conn = sqlite3.connect("mostodent.db")
-        #To delete
-        self.tbPagesConf.addFila("img1","A","1")
-        self.tbPagesConf.addFila("img2","B","2")
-        self.tbPagesConf.addFila("img3","C","3")
-        self.tbPagesConf.addFila("img4","D","4")
-        self.tbPagesConf.addFila("img5","E","5")
+
+    def updateConfeccionImage(self, row):
+        self.lblPDConf.setPixmap(self.imgArray[row])
+        print("Recibido "+str(row))
     
     def checkMax(self):
         if self.sbPagIni.value() > len(self.imgArray):

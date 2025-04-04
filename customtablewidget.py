@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView, QLabel, QWidget, QVBoxLayout
-from PyQt5.QtCore import Qt, QMimeData
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView, QLabel, QWidget, QVBoxLayout, QHeaderView, QMenu, QAction
+from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
 from PyQt5.QtGui import QDrag, QPixmap
 
 
 class CustomTableWidget(QTableWidget):
+    cellClickedSignal = pyqtSignal(int)
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setDragEnabled(True)
@@ -11,13 +12,28 @@ class CustomTableWidget(QTableWidget):
         self.viewport().setAcceptDrops(True)
         self.setDragDropOverwriteMode(False)
         self.setDropIndicatorShown(True)
-        
+        self.horizontalHeader().ResizeMode(QHeaderView.ResizeToContents)
+        self.setEditTriggers(QTableWidget.NoEditTriggers)
         self.setSelectionMode(QAbstractItemView.SingleSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setDragDropMode(QAbstractItemView.DragDrop)
         self.dragged_item = None
         self.dragged_index = None
         self.fila_origen = None  # Para almacenar la fila de origen
+        self.cellClicked.connect(self.onClickRow)
+        self.customContextMenuRequested.connect(self.show_context_menu)
+        self.setContextMenuPolicy(3)
+        
+    def show_context_menu(self, position):
+        menu = QMenu(self)
+        print("Estamos")
+        delete_action = QAction("Borrar", self)
+        #delete_action.triggered.connect(self.delete_item)
+        menu.addAction(delete_action)
+        menu.exec_(self.viewport().mapToGlobal(position))
+        
+    def onClickRow(self, row, col):
+        self.cellClickedSignal.emit(row)            
         
     def startDrag(self, supportedActions):
         item = self.currentItem()  # Obtener el elemento seleccionado
@@ -98,7 +114,7 @@ class CustomTableWidget(QTableWidget):
             layout = QVBoxLayout(container)
             layout.addWidget(img_label)
             layout.setContentsMargins(0, 0, 0, 0)
-            self.setRowHeight(curRow, 128) 
+            self.setRowHeight(curRow, 150) 
             self.setCellWidget(curRow , 0, container)
             self.setItem(curRow , 1, QTableWidgetItem(valu1))
             self.setItem(curRow , 2, QTableWidgetItem(valu2))
